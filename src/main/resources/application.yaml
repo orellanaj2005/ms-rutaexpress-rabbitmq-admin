@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: rabbitmqadmin
+  config:
+    import: optional:file:.env[.properties]
+
+server:
+  port: 8085
+
+security:
+  jwt:
+    issuer-uri: https://login.microsoftonline.com/${TENANT_ID}/v2.0
+    audience: ${API_CLIENT_ID}
+
+rabbitmq:
+  management-url: ${RABBITMQ_MGMT_URL:http://100.62.195.17:15672}
+  username: ${RABBITMQ_MGMT_USER:guest}
+  password: ${RABBITMQ_MGMT_PASSWORD:guest}
