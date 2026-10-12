@@ -12,3 +12,4 @@ COPY --from=build /app/target/*.jar app.jar
 EXPOSE 8085
 ENV JAVA_TOOL_OPTIONS="-Djava.net.preferIPv4Stack=true"
 ENTRYPOINT ["java", "-jar", "app.jar"]
+
