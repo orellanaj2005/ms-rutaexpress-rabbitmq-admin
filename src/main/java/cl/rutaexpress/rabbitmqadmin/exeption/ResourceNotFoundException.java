@@ -1,9 +1,9 @@
 package cl.rutaexpress.rabbitmqadmin.exception;
 
 
-public class ResourceNotFoundException extends RuntimeException {
+public class resourceNotFoundException extends RuntimeException {
 
-    public ResourceNotFoundException(String message) {
+    public resourceNotFoundException(String message) {
         super(message);
     }
 }

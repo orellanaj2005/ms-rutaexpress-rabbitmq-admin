@@ -1,9 +1,9 @@
 package cl.rutaexpress.rabbitmqadmin.exception;
 
 
-public class ResourceAlreadyExistsException extends RuntimeException {
+public class resourceAlreadyExistsException extends RuntimeException {
 
-    public ResourceAlreadyExistsException(String message) {
+    public resourceAlreadyExistsException(String message) {
         super(message);
     }
 }

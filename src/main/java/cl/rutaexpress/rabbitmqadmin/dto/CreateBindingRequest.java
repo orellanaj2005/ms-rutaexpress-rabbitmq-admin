@@ -4,7 +4,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 
 
-public record CreateBindingRequest(
+public record createBindingRequest(
 
         @NotBlank(message = "El exchange es obligatorio")
         @Pattern(regexp = "^[a-zA-Z0-9._-]{1,200}$", message = "El nombre del exchange no es válido")

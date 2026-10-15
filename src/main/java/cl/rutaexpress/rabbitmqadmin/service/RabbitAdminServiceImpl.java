@@ -1,9 +1,9 @@
 package cl.rutaexpress.rabbitmqadmin.service;
 
-import cl.rutaexpress.rabbitmqadmin.config.RabbitAdminProperties;
-import cl.rutaexpress.rabbitmqadmin.dto.CreateBindingRequest;
-import cl.rutaexpress.rabbitmqadmin.dto.CreateExchangeRequest;
-import cl.rutaexpress.rabbitmqadmin.dto.CreateQueueRequest;
+import cl.rutaexpress.rabbitmqadmin.config.rabbitAdminProperties;
+import cl.rutaexpress.rabbitmqadmin.dto.createBindingRequest;
+import cl.rutaexpress.rabbitmqadmin.dto.createExchangeRequest;
+import cl.rutaexpress.rabbitmqadmin.dto.createQueueRequest;
 import cl.rutaexpress.rabbitmqadmin.exception.ProtectedResourceException;
 import cl.rutaexpress.rabbitmqadmin.exception.RabbitManagementUnavailableException;
 import cl.rutaexpress.rabbitmqadmin.exception.ResourceAlreadyExistsException;
@@ -33,12 +33,12 @@ public class RabbitAdminServiceImpl implements RabbitAdminService {
     private static final String AMQ_RESERVED_PREFIX = "amq.";
 
     private final RestTemplate restTemplate;
-    private final RabbitAdminProperties properties;
+    private final rabbitAdminProperties properties;
     private final String managementUrl;
 
     public RabbitAdminServiceImpl(
             @Qualifier("rabbitRestTemplate") RestTemplate restTemplate,
-            RabbitAdminProperties properties,
+            rabbitAdminProperties properties,
             @Value("${rabbitmq.management-url}") String managementUrl) {
         this.restTemplate = restTemplate;
         this.properties = properties;
@@ -62,7 +62,7 @@ public class RabbitAdminServiceImpl implements RabbitAdminService {
     }
 
     @Override
-    public void createQueue(CreateQueueRequest request) {
+    public void createQueue(createQueueRequest request) {
         rejectIfAmqPrefixed(request.name());
 
         if (queueExists(request.name())) {
@@ -111,7 +111,7 @@ public class RabbitAdminServiceImpl implements RabbitAdminService {
     }
 
     @Override
-    public void createExchange(CreateExchangeRequest request) {
+    public void createExchange(createExchangeRequest request) {
         rejectIfAmqPrefixed(request.name());
 
         if (exchangeExists(request.name())) {
@@ -152,7 +152,7 @@ public class RabbitAdminServiceImpl implements RabbitAdminService {
     }
 
     @Override
-    public void createBinding(CreateBindingRequest request) {
+    public void createBinding(createBindingRequest request) {
         Map<String, Object> body = new HashMap<>();
         body.put("routing_key", request.routingKey());
 

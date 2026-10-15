@@ -1,9 +1,9 @@
 package cl.rutaexpress.rabbitmqadmin.exception;
 
 
-public class RabbitManagementUnavailableException extends RuntimeException {
+public class rabbitManagementUnavailableException extends RuntimeException {
 
-    public RabbitManagementUnavailableException(String message, Throwable cause) {
+    public rabbitManagementUnavailableException(String message, Throwable cause) {
         super(message, cause);
     }
 }

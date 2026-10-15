@@ -1,9 +1,9 @@
 package cl.rutaexpress.rabbitmqadmin.service;
 
-import cl.rutaexpress.rabbitmqadmin.config.RabbitAdminProperties;
-import cl.rutaexpress.rabbitmqadmin.dto.CreateBindingRequest;
-import cl.rutaexpress.rabbitmqadmin.dto.CreateExchangeRequest;
-import cl.rutaexpress.rabbitmqadmin.dto.CreateQueueRequest;
+import cl.rutaexpress.rabbitmqadmin.config.rabbitAdminProperties;
+import cl.rutaexpress.rabbitmqadmin.dto.createBindingRequest;
+import cl.rutaexpress.rabbitmqadmin.dto.createExchangeRequest;
+import cl.rutaexpress.rabbitmqadmin.dto.createQueueRequest;
 import cl.rutaexpress.rabbitmqadmin.dto.ExchangeType;
 import cl.rutaexpress.rabbitmqadmin.exception.ProtectedResourceException;
 import cl.rutaexpress.rabbitmqadmin.exception.RabbitManagementUnavailableException;
@@ -27,7 +27,7 @@ import static org.springframework.test.web.client.response.MockRestResponseCreat
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withStatus;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.withSuccess;
 
-class RabbitAdminServiceImplTest {
+class rabbitAdminServiceImplTest {
 
     private static final String MANAGEMENT_URL = "http://rabbit-test:15672";
 
@@ -39,7 +39,7 @@ class RabbitAdminServiceImplTest {
         RestTemplate restTemplate = new RestTemplate();
         server = MockRestServiceServer.createServer(restTemplate);
 
-        RabbitAdminProperties properties = new RabbitAdminProperties();
+        rabbitAdminProperties properties = new rabbitAdminProperties();
         properties.setProtected(List.of("q.cmd.email", "cmd.direct", "q.audit.deadletter"));
 
         service = new RabbitAdminServiceImpl(restTemplate, properties, MANAGEMENT_URL);
@@ -69,7 +69,7 @@ class RabbitAdminServiceImplTest {
 
     @Test
     void createQueueRejectsAmqPrefixedNamesWithoutCallingRabbit() {
-        CreateQueueRequest request = new CreateQueueRequest("amq.algo", true, null, null);
+        createQueueRequest request = new createQueueRequest("amq.algo", true, null, null);
 
         assertThrows(ProtectedResourceException.class, () -> service.createQueue(request));
         server.verify();
@@ -81,7 +81,7 @@ class RabbitAdminServiceImplTest {
                 .andExpect(method(HttpMethod.GET))
                 .andRespond(withSuccess("{\"name\":\"q.ya.existe\"}", MediaType.APPLICATION_JSON));
 
-        CreateQueueRequest request = new CreateQueueRequest("q.ya.existe", true, null, null);
+        createQueueRequest request = new createQueueRequest("q.ya.existe", true, null, null);
 
         assertThrows(ResourceAlreadyExistsException.class, () -> service.createQueue(request));
         server.verify();
@@ -96,7 +96,7 @@ class RabbitAdminServiceImplTest {
                 .andExpect(method(HttpMethod.PUT))
                 .andRespond(withSuccess());
 
-        CreateQueueRequest request = new CreateQueueRequest("q.nueva", true, "cmd.dead.dlx", 60000L);
+        createQueueRequest request = new createQueueRequest("q.nueva", true, "cmd.dead.dlx", 60000L);
 
         service.createQueue(request);
         server.verify();
@@ -121,7 +121,7 @@ class RabbitAdminServiceImplTest {
                 .andExpect(method(HttpMethod.PUT))
                 .andRespond(withSuccess());
 
-        CreateExchangeRequest request = new CreateExchangeRequest("x.nuevo", ExchangeType.TOPIC, true);
+        createExchangeRequest request = new createExchangeRequest("x.nuevo", ExchangeType.TOPIC, true);
 
         service.createExchange(request);
         server.verify();
@@ -133,7 +133,7 @@ class RabbitAdminServiceImplTest {
                 .andExpect(method(HttpMethod.POST))
                 .andRespond(withStatus(HttpStatus.NOT_FOUND));
 
-        CreateBindingRequest request = new CreateBindingRequest("no-existe", "q.cmd.email", "email.send");
+        createBindingRequest request = new createBindingRequest("no-existe", "q.cmd.email", "email.send");
 
         assertThrows(ResourceNotFoundException.class, () -> service.createBinding(request));
         server.verify();

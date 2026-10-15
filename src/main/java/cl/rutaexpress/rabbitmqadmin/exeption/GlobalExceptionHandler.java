@@ -13,7 +13,7 @@ import java.util.Map;
 
 
 @RestControllerAdvice
-public class GlobalExceptionHandler {
+public class globalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
@@ -26,26 +26,26 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException ex) {
+    @ExceptionHandler(resourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNotFound(resourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(errorBody("RESOURCE_NOT_FOUND", ex.getMessage()));
     }
 
-    @ExceptionHandler(ResourceAlreadyExistsException.class)
-    public ResponseEntity<Map<String, Object>> handleAlreadyExists(ResourceAlreadyExistsException ex) {
+    @ExceptionHandler(resourceAlreadyExistsException.class)
+    public ResponseEntity<Map<String, Object>> handleAlreadyExists(resourceAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(errorBody("RESOURCE_ALREADY_EXISTS", ex.getMessage()));
     }
 
-    @ExceptionHandler(ProtectedResourceException.class)
-    public ResponseEntity<Map<String, Object>> handleProtected(ProtectedResourceException ex) {
+    @ExceptionHandler(protectedResourceException.class)
+    public ResponseEntity<Map<String, Object>> handleProtected(protectedResourceException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(errorBody("PROTECTED_RESOURCE", ex.getMessage()));
     }
 
-    @ExceptionHandler(RabbitManagementUnavailableException.class)
-    public ResponseEntity<Map<String, Object>> handleUnavailable(RabbitManagementUnavailableException ex) {
+    @ExceptionHandler(rabbitManagementUnavailableException.class)
+    public ResponseEntity<Map<String, Object>> handleUnavailable(rabbitManagementUnavailableException ex) {
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
                 .body(errorBody("RABBITMQ_UNAVAILABLE", "RabbitMQ no respondió a la solicitud de administración"));
     }

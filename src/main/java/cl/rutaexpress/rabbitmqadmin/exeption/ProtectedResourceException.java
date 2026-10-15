@@ -1,9 +1,9 @@
 package cl.rutaexpress.rabbitmqadmin.exception;
 
 
-public class ProtectedResourceException extends RuntimeException {
+public class protectedResourceException extends RuntimeException {
 
-    public ProtectedResourceException(String message) {
+    public protectedResourceException(String message) {
         super(message);
     }
 }

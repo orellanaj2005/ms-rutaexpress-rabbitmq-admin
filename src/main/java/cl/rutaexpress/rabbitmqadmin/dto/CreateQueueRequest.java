@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.PositiveOrZero;
 
 
-public record CreateQueueRequest(
+public record createQueueRequest(
 
         @NotBlank(message = "El nombre de la cola es obligatorio")
         @Pattern(
@@ -23,7 +23,7 @@ public record CreateQueueRequest(
 ) {
 
     /** Si no se envía, por convención las colas de administración quedan durables. */
-    public CreateQueueRequest {
+    public createQueueRequest {
         if (name != null) {
             name = name.trim();
         }
