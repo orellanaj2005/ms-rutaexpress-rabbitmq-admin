@@ -11,9 +11,13 @@ import org.springframework.web.client.HttpStatusCodeException;
 import java.util.HashMap;
 import java.util.Map;
 
-
+/**
+ * Mensajes en español para los cuatro casos que pide la sección 6.2 del
+ * documento de distribución: 400 (validación), 404 (no existe), 409 (ya
+ * existe o está protegido) y 502 (RabbitMQ no responde).
+ */
 @RestControllerAdvice
-public class globalExceptionHandler {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException ex) {
@@ -26,31 +30,37 @@ public class globalExceptionHandler {
         return ResponseEntity.badRequest().body(body);
     }
 
-    @ExceptionHandler(resourceNotFoundException.class)
-    public ResponseEntity<Map<String, Object>> handleNotFound(resourceNotFoundException ex) {
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleNotFound(ResourceNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(errorBody("RESOURCE_NOT_FOUND", ex.getMessage()));
     }
 
-    @ExceptionHandler(resourceAlreadyExistsException.class)
-    public ResponseEntity<Map<String, Object>> handleAlreadyExists(resourceAlreadyExistsException ex) {
+    @ExceptionHandler(ResourceAlreadyExistsException.class)
+    public ResponseEntity<Map<String, Object>> handleAlreadyExists(ResourceAlreadyExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(errorBody("RESOURCE_ALREADY_EXISTS", ex.getMessage()));
     }
 
-    @ExceptionHandler(protectedResourceException.class)
-    public ResponseEntity<Map<String, Object>> handleProtected(protectedResourceException ex) {
+    @ExceptionHandler(ProtectedResourceException.class)
+    public ResponseEntity<Map<String, Object>> handleProtected(ProtectedResourceException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT)
                 .body(errorBody("PROTECTED_RESOURCE", ex.getMessage()));
     }
 
-    @ExceptionHandler(rabbitManagementUnavailableException.class)
-    public ResponseEntity<Map<String, Object>> handleUnavailable(rabbitManagementUnavailableException ex) {
+    @ExceptionHandler(RabbitManagementUnavailableException.class)
+    public ResponseEntity<Map<String, Object>> handleUnavailable(RabbitManagementUnavailableException ex) {
         return ResponseEntity.status(HttpStatus.BAD_GATEWAY)
                 .body(errorBody("RABBITMQ_UNAVAILABLE", "RabbitMQ no respondió a la solicitud de administración"));
     }
 
-    
+    /**
+     * Cualquier otro error que RabbitMQ devuelva directamente (por ejemplo un
+     * 400 por un argumento inconsistente que la validación de este servicio
+     * no captura) se reenvía con su propio código y cuerpo en vez de
+     * convertirse en un 500 genérico — la misma idea que usa el BFF en
+     * DownstreamErrorHandler (documento de Javier, sección 5.2).
+     */
     @ExceptionHandler(HttpStatusCodeException.class)
     public ResponseEntity<Object> handleRabbitError(HttpStatusCodeException ex) {
         return ResponseEntity.status(ex.getStatusCode()).body(ex.getResponseBodyAsString());
@@ -63,4 +73,3 @@ public class globalExceptionHandler {
         return body;
     }
 }
-
