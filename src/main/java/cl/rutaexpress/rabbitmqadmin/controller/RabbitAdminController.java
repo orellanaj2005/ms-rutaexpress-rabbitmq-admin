@@ -1,36 +1,100 @@
 package cl.rutaexpress.rabbitmqadmin.controller;
 
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.beans.factory.annotation.Qualifier;
+import cl.rutaexpress.rabbitmqadmin.dto.createBindingRequest;
+import cl.rutaexpress.rabbitmqadmin.dto.createExchangeRequest;
+import cl.rutaexpress.rabbitmqadmin.dto.createQueueRequest;
+import cl.rutaexpress.rabbitmqadmin.service.RabbitAdminService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
 
 @RestController
 @RequestMapping("/api/rabbitmq")
-public class RabbitAdminController {
+public class rabbitAdminController {
 
-    private final RestTemplate restTemplate;
+    private final RabbitAdminService service;
 
-    @Value("${rabbitmq.management-url}")
-    private String managementUrl;
-
-    public RabbitAdminController(@Qualifier("rabbitRestTemplate") RestTemplate restTemplate) {
-        this.restTemplate = restTemplate;
+    public rabbitAdminController(RabbitAdminService service) {
+        this.service = service;
     }
+
+    // ---------------------------------------------------------------- queues
 
     @GetMapping("/queues")
     public ResponseEntity<Object> listQueues() {
-        return restTemplate.getForEntity(managementUrl + "/api/queues", Object.class);
+        return ResponseEntity.ok(service.listQueues());
     }
 
     @GetMapping("/queues/{name}")
     public ResponseEntity<Object> getQueue(@PathVariable String name) {
-        return restTemplate.getForEntity(managementUrl + "/api/queues/%2F/" + name, Object.class);
+        return ResponseEntity.ok(service.getQueue(name));
     }
+
+    @PostMapping("/queues")
+    public ResponseEntity<Void> createQueue(@Valid @RequestBody createQueueRequest request) {
+        service.createQueue(request);
+        return ResponseEntity.status(201).build();
+    }
+
+    @DeleteMapping("/queues/{name}")
+    public ResponseEntity<Void> deleteQueue(@PathVariable String name) {
+        service.deleteQueue(name);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ------------------------------------------------------------- exchanges
+
+    @GetMapping("/exchanges")
+    public ResponseEntity<Object> listExchanges() {
+        return ResponseEntity.ok(service.listExchanges());
+    }
+
+    @PostMapping("/exchanges")
+    public ResponseEntity<Void> createExchange(@Valid @RequestBody createExchangeRequest request) {
+        service.createExchange(request);
+        return ResponseEntity.status(201).build();
+    }
+
+    @DeleteMapping("/exchanges/{name}")
+    public ResponseEntity<Void> deleteExchange(@PathVariable String name) {
+        service.deleteExchange(name);
+        return ResponseEntity.noContent().build();
+    }
+
+    // -------------------------------------------------------------- bindings
+
+    @GetMapping("/bindings")
+    public ResponseEntity<Object> listBindings() {
+        return ResponseEntity.ok(service.listBindings());
+    }
+
+    @PostMapping("/bindings")
+    public ResponseEntity<Void> createBinding(@Valid @RequestBody createBindingRequest request) {
+        service.createBinding(request);
+        return ResponseEntity.status(201).build();
+    }
+
+    @DeleteMapping("/bindings")
+    public ResponseEntity<Void> deleteBinding(
+            @RequestParam String exchange,
+            @RequestParam String queue,
+            @RequestParam String routingKey) {
+        service.deleteBinding(exchange, queue, routingKey);
+        return ResponseEntity.noContent().build();
+    }
+
+    // -------------------------------------------------------------- overview
 
     @GetMapping("/overview")
     public ResponseEntity<Object> getOverview() {
-        return restTemplate.getForEntity(managementUrl + "/api/overview", Object.class);
+        return ResponseEntity.ok(service.getOverview());
     }
 }

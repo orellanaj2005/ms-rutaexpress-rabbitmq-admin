@@ -7,7 +7,7 @@ import org.springframework.http.client.support.BasicAuthenticationInterceptor;
 import org.springframework.web.client.RestTemplate;
 
 @Configuration
-public class RestTemplateConfig {
+public class restTemplateConfig {
 
     @Value("${rabbitmq.username}")
     private String username;

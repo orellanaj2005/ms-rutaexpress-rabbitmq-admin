@@ -18,7 +18,7 @@ import java.util.List;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-public class SecurityConfig {
+public class securityConfig {
 
     @Value("${security.jwt.issuer-uri}")
     private String issuerUri;
