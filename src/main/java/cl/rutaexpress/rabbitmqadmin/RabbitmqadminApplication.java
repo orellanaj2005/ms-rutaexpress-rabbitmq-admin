@@ -1,12 +1,12 @@
 package cl.rutaexpress.rabbitmqadmin;
 
-import cl.rutaexpress.rabbitmqadmin.config.rabbitAdminProperties;
+import cl.rutaexpress.rabbitmqadmin.config.RabbitAdminProperties;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
 @SpringBootApplication
-@EnableConfigurationProperties(rabbitAdminProperties.class)
+@EnableConfigurationProperties(RabbitAdminProperties.class)
 public class RabbitmqadminApplication {
 
 	public static void main(String[] args) {

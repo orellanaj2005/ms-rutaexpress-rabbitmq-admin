@@ -6,7 +6,7 @@ import java.util.List;
 
 
 @ConfigurationProperties(prefix = "rutaexpress.rabbitmq")
-public class rabbitAdminProperties {
+public class RabbitAdminProperties {
 
     private List<String> protectedResources = List.of();
 

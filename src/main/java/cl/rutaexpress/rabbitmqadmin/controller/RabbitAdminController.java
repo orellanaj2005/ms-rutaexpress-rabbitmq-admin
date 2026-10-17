@@ -1,8 +1,8 @@
 package cl.rutaexpress.rabbitmqadmin.controller;
 
-import cl.rutaexpress.rabbitmqadmin.dto.createBindingRequest;
-import cl.rutaexpress.rabbitmqadmin.dto.createExchangeRequest;
-import cl.rutaexpress.rabbitmqadmin.dto.createQueueRequest;
+import cl.rutaexpress.rabbitmqadmin.dto.CreateBindingRequest;
+import cl.rutaexpress.rabbitmqadmin.dto.CreateExchangeRequest;
+import cl.rutaexpress.rabbitmqadmin.dto.CreateQueueRequest;
 import cl.rutaexpress.rabbitmqadmin.service.RabbitAdminService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
@@ -18,11 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/api/rabbitmq")
-public class rabbitAdminController {
+public class RabbitAdminController {
 
     private final RabbitAdminService service;
 
-    public rabbitAdminController(RabbitAdminService service) {
+    public RabbitAdminController(RabbitAdminService service) {
         this.service = service;
     }
 
@@ -39,7 +39,7 @@ public class rabbitAdminController {
     }
 
     @PostMapping("/queues")
-    public ResponseEntity<Void> createQueue(@Valid @RequestBody createQueueRequest request) {
+    public ResponseEntity<Void> createQueue(@Valid @RequestBody CreateQueueRequest request) {
         service.createQueue(request);
         return ResponseEntity.status(201).build();
     }
@@ -58,7 +58,7 @@ public class rabbitAdminController {
     }
 
     @PostMapping("/exchanges")
-    public ResponseEntity<Void> createExchange(@Valid @RequestBody createExchangeRequest request) {
+    public ResponseEntity<Void> createExchange(@Valid @RequestBody CreateExchangeRequest request) {
         service.createExchange(request);
         return ResponseEntity.status(201).build();
     }
@@ -77,7 +77,7 @@ public class rabbitAdminController {
     }
 
     @PostMapping("/bindings")
-    public ResponseEntity<Void> createBinding(@Valid @RequestBody createBindingRequest request) {
+    public ResponseEntity<Void> createBinding(@Valid @RequestBody CreateBindingRequest request) {
         service.createBinding(request);
         return ResponseEntity.status(201).build();
     }

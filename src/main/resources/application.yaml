@@ -16,3 +16,22 @@ rabbitmq:
   management-url: ${RABBITMQ_MGMT_URL:http://100.62.195.17:15672}
   username: ${RABBITMQ_MGMT_USER:guest}
   password: ${RABBITMQ_MGMT_PASSWORD:guest}
+
+# Recursos del contrato de topología (declarados por notify y audit).
+# El microservicio rechaza eliminarlos, igual que sus bindings.
+rutaexpress:
+  rabbitmq:
+    protected:
+      - cmd.direct
+      - cmd.topic
+      - cmd.dead.dlx
+      - q.cmd.email
+      - q.cmd.warehouse
+      - q.cmd.label
+      - q.cmd.email.dlq
+      - q.cmd.warehouse.dlq
+      - q.cmd.label.dlq
+      - q.cmd.email.retry
+      - q.cmd.warehouse.retry
+      - q.cmd.label.retry
+      - q.audit.deadletter

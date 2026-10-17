@@ -1,9 +1,9 @@
 package cl.rutaexpress.rabbitmqadmin.service;
 
-import cl.rutaexpress.rabbitmqadmin.config.rabbitAdminProperties;
-import cl.rutaexpress.rabbitmqadmin.dto.createBindingRequest;
-import cl.rutaexpress.rabbitmqadmin.dto.createExchangeRequest;
-import cl.rutaexpress.rabbitmqadmin.dto.createQueueRequest;
+import cl.rutaexpress.rabbitmqadmin.config.RabbitAdminProperties;
+import cl.rutaexpress.rabbitmqadmin.dto.CreateBindingRequest;
+import cl.rutaexpress.rabbitmqadmin.dto.CreateExchangeRequest;
+import cl.rutaexpress.rabbitmqadmin.dto.CreateQueueRequest;
 import cl.rutaexpress.rabbitmqadmin.exception.ProtectedResourceException;
 import cl.rutaexpress.rabbitmqadmin.exception.RabbitManagementUnavailableException;
 import cl.rutaexpress.rabbitmqadmin.exception.ResourceAlreadyExistsException;
@@ -28,17 +28,17 @@ import java.util.Map;
 @Service
 public class RabbitAdminServiceImpl implements RabbitAdminService {
 
-    /** Vhost por defecto de RabbitMQ, siempre codificado como %2F en las URL del Management API. */
-    private static final String VHOST_ENCODED = "%2F";
+    /** Vhost por defecto de RabbitMQ. Se pasa como variable de URI para que quede codificado una sola vez (%2F). */
+    private static final String VHOST = "/";
     private static final String AMQ_RESERVED_PREFIX = "amq.";
 
     private final RestTemplate restTemplate;
-    private final rabbitAdminProperties properties;
+    private final RabbitAdminProperties properties;
     private final String managementUrl;
 
     public RabbitAdminServiceImpl(
             @Qualifier("rabbitRestTemplate") RestTemplate restTemplate,
-            rabbitAdminProperties properties,
+            RabbitAdminProperties properties,
             @Value("${rabbitmq.management-url}") String managementUrl) {
         this.restTemplate = restTemplate;
         this.properties = properties;
@@ -55,14 +55,14 @@ public class RabbitAdminServiceImpl implements RabbitAdminService {
     @Override
     public Object getQueue(String name) {
         try {
-            return get("/api/queues/" + VHOST_ENCODED + "/" + name);
+            return get("/api/queues/{vhost}/{name}", VHOST, name);
         } catch (HttpClientErrorException.NotFound ex) {
             throw new ResourceNotFoundException("No existe la cola '" + name + "'");
         }
     }
 
     @Override
-    public void createQueue(createQueueRequest request) {
+    public void createQueue(CreateQueueRequest request) {
         rejectIfAmqPrefixed(request.name());
 
         if (queueExists(request.name())) {
@@ -81,14 +81,14 @@ public class RabbitAdminServiceImpl implements RabbitAdminService {
         body.put("durable", request.durable());
         body.put("arguments", arguments);
 
-        put("/api/queues/" + VHOST_ENCODED + "/" + request.name(), body);
+        put("/api/queues/{vhost}/{name}", body, VHOST, request.name());
     }
 
     @Override
     public void deleteQueue(String name) {
         rejectIfProtected(name);
         try {
-            delete("/api/queues/" + VHOST_ENCODED + "/" + name);
+            delete("/api/queues/{vhost}/{name}", VHOST, name);
         } catch (HttpClientErrorException.NotFound ex) {
             throw new ResourceNotFoundException("No existe la cola '" + name + "'");
         }
@@ -96,7 +96,7 @@ public class RabbitAdminServiceImpl implements RabbitAdminService {
 
     private boolean queueExists(String name) {
         try {
-            get("/api/queues/" + VHOST_ENCODED + "/" + name);
+            get("/api/queues/{vhost}/{name}", VHOST, name);
             return true;
         } catch (HttpClientErrorException.NotFound ex) {
             return false;
@@ -107,11 +107,11 @@ public class RabbitAdminServiceImpl implements RabbitAdminService {
 
     @Override
     public Object listExchanges() {
-        return get("/api/exchanges/" + VHOST_ENCODED);
+        return get("/api/exchanges/{vhost}", VHOST);
     }
 
     @Override
-    public void createExchange(createExchangeRequest request) {
+    public void createExchange(CreateExchangeRequest request) {
         rejectIfAmqPrefixed(request.name());
 
         if (exchangeExists(request.name())) {
@@ -122,14 +122,14 @@ public class RabbitAdminServiceImpl implements RabbitAdminService {
         body.put("type", request.type().toRabbitType());
         body.put("durable", request.durable());
 
-        put("/api/exchanges/" + VHOST_ENCODED + "/" + request.name(), body);
+        put("/api/exchanges/{vhost}/{name}", body, VHOST, request.name());
     }
 
     @Override
     public void deleteExchange(String name) {
         rejectIfProtected(name);
         try {
-            delete("/api/exchanges/" + VHOST_ENCODED + "/" + name);
+            delete("/api/exchanges/{vhost}/{name}", VHOST, name);
         } catch (HttpClientErrorException.NotFound ex) {
             throw new ResourceNotFoundException("No existe el exchange '" + name + "'");
         }
@@ -137,7 +137,7 @@ public class RabbitAdminServiceImpl implements RabbitAdminService {
 
     private boolean exchangeExists(String name) {
         try {
-            get("/api/exchanges/" + VHOST_ENCODED + "/" + name);
+            get("/api/exchanges/{vhost}/{name}", VHOST, name);
             return true;
         } catch (HttpClientErrorException.NotFound ex) {
             return false;
@@ -148,17 +148,16 @@ public class RabbitAdminServiceImpl implements RabbitAdminService {
 
     @Override
     public Object listBindings() {
-        return get("/api/bindings/" + VHOST_ENCODED);
+        return get("/api/bindings/{vhost}", VHOST);
     }
 
     @Override
-    public void createBinding(createBindingRequest request) {
+    public void createBinding(CreateBindingRequest request) {
         Map<String, Object> body = new HashMap<>();
         body.put("routing_key", request.routingKey());
 
-        String path = "/api/bindings/" + VHOST_ENCODED + "/e/" + request.exchange() + "/q/" + request.queue();
         try {
-            post(path, body);
+            post("/api/bindings/{vhost}/e/{exchange}/q/{queue}", body, VHOST, request.exchange(), request.queue());
         } catch (HttpClientErrorException.NotFound ex) {
             throw new ResourceNotFoundException(
                     "El exchange '" + request.exchange() + "' o la cola '" + request.queue() + "' no existen");
@@ -173,11 +172,7 @@ public class RabbitAdminServiceImpl implements RabbitAdminService {
         }
 
 
-        URI uri = UriComponentsBuilder.fromUriString(managementUrl)
-                .path("/api/bindings/{vhost}/e/{exchange}/q/{queue}/{routingKey}")
-                .encode()
-                .buildAndExpand("/", exchange, queue, routingKey)
-                .toUri();
+        URI uri = uri("/api/bindings/{vhost}/e/{exchange}/q/{queue}/{routingKey}", VHOST, exchange, queue, routingKey);
 
         try {
             restTemplate.exchange(uri, HttpMethod.DELETE, HttpEntity.EMPTY, Void.class);
@@ -212,33 +207,45 @@ public class RabbitAdminServiceImpl implements RabbitAdminService {
         }
     }
 
-    private Object get(String path) {
+    /**
+     * Arma la URI ya codificada. Se pasa a RestTemplate como URI (no como String) para que
+     * no vuelva a codificar el '%' de %2F, que RabbitMQ recibiría como %252F y respondería 404.
+     */
+    private URI uri(String path, Object... vars) {
+        return UriComponentsBuilder.fromUriString(managementUrl)
+                .path(path)
+                .encode()
+                .buildAndExpand(vars)
+                .toUri();
+    }
+
+    private Object get(String path, Object... vars) {
         try {
-            return restTemplate.getForObject(managementUrl + path, Object.class);
+            return restTemplate.getForObject(uri(path, vars), Object.class);
         } catch (ResourceAccessException | HttpServerErrorException ex) {
             throw new RabbitManagementUnavailableException("RabbitMQ no respondió a la solicitud", ex);
         }
     }
 
-    private void put(String path, Object body) {
+    private void put(String path, Object body, Object... vars) {
         try {
-            restTemplate.put(managementUrl + path, body);
+            restTemplate.put(uri(path, vars), body);
         } catch (ResourceAccessException | HttpServerErrorException ex) {
             throw new RabbitManagementUnavailableException("RabbitMQ no respondió a la solicitud", ex);
         }
     }
 
-    private void post(String path, Object body) {
+    private void post(String path, Object body, Object... vars) {
         try {
-            restTemplate.postForLocation(managementUrl + path, body);
+            restTemplate.postForLocation(uri(path, vars), body);
         } catch (ResourceAccessException | HttpServerErrorException ex) {
             throw new RabbitManagementUnavailableException("RabbitMQ no respondió a la solicitud", ex);
         }
     }
 
-    private void delete(String path) {
+    private void delete(String path, Object... vars) {
         try {
-            restTemplate.delete(managementUrl + path);
+            restTemplate.delete(uri(path, vars));
         } catch (ResourceAccessException | HttpServerErrorException ex) {
             throw new RabbitManagementUnavailableException("RabbitMQ no respondió a la solicitud", ex);
         }

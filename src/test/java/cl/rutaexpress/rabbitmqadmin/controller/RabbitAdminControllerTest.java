@@ -1,6 +1,6 @@
 package cl.rutaexpress.rabbitmqadmin.controller;
 
-import cl.rutaexpress.rabbitmqadmin.config.securityConfig;
+import cl.rutaexpress.rabbitmqadmin.config.SecurityConfig;
 import cl.rutaexpress.rabbitmqadmin.exception.ProtectedResourceException;
 import cl.rutaexpress.rabbitmqadmin.exception.ResourceNotFoundException;
 import cl.rutaexpress.rabbitmqadmin.service.RabbitAdminService;
@@ -28,8 +28,8 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 
-@WebMvcTest(rabbitAdminController.class)
-@Import(securityConfig.class)
+@WebMvcTest(RabbitAdminController.class)
+@Import(SecurityConfig.class)
 @TestPropertySource(properties = {
         "TENANT_ID=00000000-0000-0000-0000-000000000000",
         "API_CLIENT_ID=00000000-0000-0000-0000-000000000000"

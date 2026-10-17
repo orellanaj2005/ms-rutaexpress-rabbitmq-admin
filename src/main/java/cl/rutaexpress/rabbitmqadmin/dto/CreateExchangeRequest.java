@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 
 
-public record createExchangeRequest(
+public record CreateExchangeRequest(
 
         @NotBlank(message = "El nombre del exchange es obligatorio")
         @Pattern(
@@ -19,7 +19,7 @@ public record createExchangeRequest(
 
         boolean durable
 ) {
-    public createExchangeRequest {
+    public CreateExchangeRequest {
         if (name != null) {
             name = name.trim();
         }
